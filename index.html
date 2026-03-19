@@ -479,7 +479,7 @@ function showSec(id,btn){
 
 function vcHTML(v,tipo,i){
   const key=(tipo==='c'?'c':'t')+i;
-  const vis=V[key];
+  const vis=!V[key];
   const href = vis ? `https://www.youtube.com/watch?v=${v.id}` : 'javascript:void(0)';
   const targetAttr = vis ? 'target="_blank" rel="noopener"' : '';
   return `<a class="vc${vis?'':' oculto'}" id="el_${key}" href="${href}" ${targetAttr} onclick="if(profe){event.preventDefault();}">
