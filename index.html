@@ -296,12 +296,13 @@
     </div>
   </div>
 
+  <div class="section" id="sec-zoom">
+    <div class="sh"><div class="st">Clases por Zoom</div><div class="sc" id="czoom">0 CLASES</div></div>
+    <div class="vg" id="gzoom"></div>
+  </div>
+
   <div class="section" id="sec-clases">
-    <div class="sh"><div class="st">Grabaciones de Clases</div><div class="sc" id="ccl">0 VIDEOS</div></div>
-    <div class="pbanner">
-      <div><div class="pbl">Canal YouTube de la cátedra</div><div class="pbt">Lista completa de reproducción</div><div class="pbs">Accedé a todos los videos en YouTube</div></div>
-      <a href="https://www.youtube.com/playlist?list=PLDS7JZX9v1cG90QrBXKapYyFMdZMGyaAC" target="_blank" class="btn ba" style="padding:12px 24px;font-size:10px;">Ver lista completa</a>
-    </div>
+    <div class="sh"><div class="st">Material de Estudio</div><div class="sc" id="ccl">0 VIDEOS</div></div>
     <div class="notice" id="nCl"></div>
     <div class="vg" id="gcl"></div>
   </div>
@@ -349,6 +350,21 @@ const C = {
   pw: "rhino2026",
   profePw: "docente2026",
   sheets: "https://docs.google.com/spreadsheets/d/1qL9F1x1qaaHxeJMLAlkoREvbJaWxiwQY/edit?usp=sharing",
+
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║  CLASES POR ZOOM — AGREGAR NUEVAS CLASES AQUÍ              ║
+  // ║  Cuando suba una nueva clase a YouTube:                     ║
+  // ║  1. Copiá el ID del video (los últimos 11 caracteres        ║
+  // ║     de la URL: youtube.com/watch?v=XXXXXXXXXXX)             ║
+  // ║  2. Agregá una línea nueva siguiendo el mismo formato       ║
+  // ║  3. Subí el index.html a GitHub y listo                     ║
+  // ╚══════════════════════════════════════════════════════════════╝
+  zoom: [
+    {t:"Clase 01 — 20/03/2026 · Presentación y primeros pasos",  id:"p6lfJPZIYsA"},
+    {t:"Clase 02 — 27/03/2026 · Rhinoceros: modelado básico",    id:"HOjKHqVKobk"},
+    // ← AGREGAR NUEVA CLASE AQUÍ (copiar formato de arriba)
+  ],
+
   clases: [
     {t:"Video 00 — Presentación de la materia",           id:"3a6Sp4w7vxA"},
     {t:"Video 01 — Rhinoceros: primeros pasos",           id:"R6ZKwuImCzg"},
@@ -477,6 +493,14 @@ function showSec(id,btn){
   if(btn) btn.classList.add('active');
 }
 
+function zoomHTML(v,i){
+  const num=String(i+1).padStart(2,'0');
+  return `<a class="vc" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">
+    <div class="vth"><img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" loading="lazy"><div class="pi"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div><div class="vbadge" style="background:#2D8CFF;">Zoom</div></div>
+    <div class="vi"><div class="vn">CLASE ${num}</div><div class="vt">${v.t}</div></div>
+  </a>`;
+}
+
 function vcHTML(v,tipo,i){
   const key=(tipo==='c'?'c':'t')+i;
   const vis=!V[key];
@@ -538,6 +562,8 @@ function updateCounters(){
 }
 
 function build(){
+  const gzoom=document.getElementById('gzoom'); if(gzoom) gzoom.innerHTML=C.zoom.map((v,i)=>zoomHTML(v,i)).join('');
+  const czoom=document.getElementById('czoom'); if(czoom) czoom.textContent=C.zoom.length+' CLASE'+(C.zoom.length!==1?'S':'');
   const gcl=document.getElementById('gcl'); if(gcl) gcl.innerHTML=C.clases.map((v,i)=>vcHTML(v,'c',i)).join('');
   const gtu=document.getElementById('gtu'); if(gtu) gtu.innerHTML=C.tutoriales.length?C.tutoriales.map((v,i)=>vcHTML(v,'t',i)).join(''):`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:24px;grid-column:1/-1;">Los tutoriales se irán habilitando durante el cursado.</div>`;
   const shL=document.getElementById('shLink'); if(shL) shL.href=C.sheets;
