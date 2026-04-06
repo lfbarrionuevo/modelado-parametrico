@@ -60,6 +60,7 @@
   .nt.active { color:var(--accent); border-color:var(--accent); background:var(--accent-light); }
   .profe-btn { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:6px 14px; cursor:pointer; color:#5b21b6; border:1px solid #5b21b6; background:rgba(91,33,182,0.06); margin-left:8px; }
   .profe-btn:hover { background:rgba(91,33,182,0.12); }
+  .ia-nav-btn { border-color:var(--accent) !important; color:var(--accent) !important; background:var(--accent-light) !important; }
 
   /* HERO */
   .hero { padding:64px 40px 48px; max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:40px; align-items:end; }
@@ -260,6 +261,7 @@
       <button class="nt" onclick="showSec('clases',this)">Clases</button>
       <button class="nt" onclick="showSec('tps',this)">TPs</button>
       <button class="nt" onclick="showSec('info',this)">Info</button>
+      <button class="nt ia-nav-btn" onclick="showSec('ia',this)">IA Tools</button>
       <button class="profe-btn" id="profeBtn" onclick="openProfe()">Docente</button>
     </nav>
   </header>
@@ -337,6 +339,47 @@
     <div style="margin-top:36px;">
       <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Equipo docente</div>
       <div class="dg" id="dgrid"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-ia">
+    <div class="sh"><div class="st">Herramientas de IA para Arquitectura</div></div>
+
+    <a href="xfigura-instructivos.html" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+      <div class="ic" style="
+        display:flex;flex-direction:column;gap:14px;
+        border:1px solid var(--accent);
+        background:var(--accent-light);
+        cursor:pointer;
+        transition:box-shadow .2s,transform .2s;
+        position:relative;overflow:hidden;
+      "
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,135,90,.12)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="position:absolute;top:16px;right:18px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;background:var(--card);border:1px solid var(--accent);padding:3px 8px;">↗ abrir</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:44px;height:44px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">✦</div>
+          <div>
+            <div class="ii" style="color:var(--accent);margin-bottom:4px;">xFigura AI</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--text-muted);text-transform:uppercase;">George Guida · PA Parametric Architecture</div>
+          </div>
+        </div>
+        <div class="id" style="line-height:1.8;">
+          Plataforma de IA generativa pensada para arquitectos. Integra Rhinoceros y Grasshopper con generación de imágenes (sketch-to-image, text-to-image), video y modelos 3D — todo desde un canvas colaborativo en tiempo real.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="tag">Sketch-to-Image</span>
+          <span class="tag">Image-to-3D</span>
+          <span class="tag">FLUX · SDXL · Ideogram</span>
+          <span class="tag">Canvas colaborativo</span>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.05em;">▸ Ver instructivos paso a paso →</div>
+      </div>
+    </a>
+
+    <div style="margin-top:24px;padding:18px 22px;border:1px solid var(--border);background:var(--card);font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);line-height:1.9;">
+      <span style="color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-size:9px;">▸ Sobre esta sección</span><br>
+      Las herramientas de IA generativa se integran como recursos complementarios al flujo Rhino + Grasshopper. Su uso es opcional y exploratorio dentro del cursado. Plan gratuito disponible en <strong style="color:var(--text);">xfigura.ai</strong>
     </div>
   </div>
 
