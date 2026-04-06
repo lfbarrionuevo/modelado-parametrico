@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xFigura AI + Grasshopper — Instructivos | Modelado Paramétrico FAU·UNT</title>
+  <meta name="description" content="Guías para integrar xFigura AI con Rhinoceros y Grasshopper. Curso Modelado Paramétrico, FAU UNT." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0A;
+      --bg-card:   #0F0F0F;
+      --bg-open:   #0D0D0D;
+      --border:    #1E1E1E;
+      --border-md: #2A2A2A;
+      --text:      #E8E8E0;
+      --text-dim:  #B8B8B0;
+      --text-mute: #888888;
+      --text-dark: #555555;
+      --text-xdark:#333333;
+      --mono: 'DM Mono', 'Courier New', monospace;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px 22px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-meta {
+      font-size: 9px;
+      letter-spacing: .22em;
+      color: #444;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-family: var(--sans);
+    }
+    .header-title {
+      font-family: var(--sans);
+      font-size: clamp(18px, 3.5vw, 26px);
+      font-weight: 600;
+      letter-spacing: -.025em;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .header-sub {
+      font-size: 10px;
+      color: #3A3A3A;
+      margin-top: 4px;
+      letter-spacing: .1em;
+    }
+    #back-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-md);
+      color: var(--text-mute);
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: border-color .2s, color .2s;
+      align-self: center;
+    }
+    #back-btn:hover { border-color: #888; color: var(--text); }
+
+    /* ── MAIN WRAPPER ── */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── INDEX ── */
+    #index-view { padding-top: 32px; }
+
+    .intro-block {
+      padding-bottom: 28px;
+      border-bottom: 1px solid #1A1A1A;
+      margin-bottom: 32px;
+    }
+    .intro-block p {
+      font-size: 14px;
+      color: var(--text-mute);
+      line-height: 1.9;
+      max-width: 620px;
+      font-family: var(--sans);
+    }
+    .intro-block strong.accent { color: #C8FF00; }
+    .intro-block strong.mid   { color: #aaa; }
+
+    .guide-list { display: grid; gap: 2px; }
+
+    .guide-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+      background: var(--bg-card);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      gap: 22px;
+    }
+    .guide-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 0;
+      transition: height .3s ease;
+    }
+    .guide-card:hover { background: #141414; transform: translateX(4px); }
+    .guide-card:hover::before { height: 100%; }
+
+    .card-num {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 300;
+      color: #232323;
+      line-height: 1;
+      min-width: 48px;
+      flex-shrink: 0;
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card-tags { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+
+    .tag-pill {
+      font-size: 9px;
+      letter-spacing: .15em;
+      padding: 3px 8px;
+      border-radius: 2px;
+      font-weight: 500;
+      font-family: var(--sans);
+    }
+    .card-title {
+      font-family: var(--sans);
+      font-size: clamp(13px, 2vw, 15px);
+      font-weight: 500;
+      color: #D0D0C8;
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+    .card-preview {
+      font-size: 12px;
+      color: #484848;
+      line-height: 1.6;
+      font-family: var(--sans);
+    }
+    .card-arrow {
+      color: #252525;
+      font-size: 18px;
+      align-self: center;
+      flex-shrink: 0;
+      transition: color .2s;
+    }
+    .guide-card:hover .card-arrow { color: #555; }
+
+    .index-footer {
+      margin-top: 36px;
+      padding: 18px 20px;
+      border: 1px solid #1A1A1A;
+      background: #0D0D0D;
+      font-size: 11px;
+      color: #3A3A3A;
+      letter-spacing: .05em;
+      line-height: 1.9;
+      font-family: var(--sans);
+    }
+    .index-footer span { color: #2E2E2E; }
+
+    /* ── DETAIL VIEW ── */
+    #detail-view { display: none; padding-top: 32px; }
+
+    .detail-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+    }
+    .detail-tags { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .detail-title {
+      font-family: var(--sans);
+      font-size: clamp(17px, 3vw, 24px);
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .detail-intro {
+      font-size: 13.5px;
+      color: var(--text-mute);
+      line-height: 1.85;
+      font-family: var(--sans);
+      max-width: 680px;
+      padding-left: 16px;
+    }
+
+    .sections { display: grid; gap: 2px; }
+
+    .section-block {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      overflow: hidden;
+      transition: background .2s;
+    }
+    .section-block.is-open { background: var(--bg-open); }
+
+    .section-toggle {
+      cursor: pointer;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      color: #C0C0B8;
+      transition: color .2s;
+      gap: 12px;
+    }
+    .section-toggle:hover { color: #fff; }
+    .section-block.is-open .section-toggle { color: #fff; }
+
+    .section-left { display: flex; align-items: center; gap: 12px; }
+    .section-num {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      font-family: var(--mono);
+      flex-shrink: 0;
+    }
+    .section-label {
+      font-size: 13px;
+      font-family: var(--sans);
+      font-weight: 500;
+    }
+    .section-caret { font-size: 18px; flex-shrink: 0; }
+
+    .section-body {
+      display: none;
+      padding: 0 20px 20px 20px;
+    }
+    .section-block.is-open .section-body { display: block; }
+
+    .section-content-text {
+      font-size: 13px;
+      color: var(--text-mute);
+      line-height: 1.85;
+      font-family: var(--sans);
+      padding-left: 36px;
+      margin-bottom: 14px;
+    }
+    .section-items { padding-left: 36px; }
+    .item-line {
+      display: flex;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #141414;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      font-family: var(--sans);
+    }
+    .item-line:last-child { border-bottom: none; }
+    .item-bullet {
+      font-size: 10px;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    /* ── DETAIL NAV ── */
+    .detail-nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 32px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: none;
+      border: 1px solid var(--border-md);
+      color: var(--text-mute);
+      padding: 9px 18px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: border-color .2s, color .2s;
+    }
+    .nav-btn:hover { border-color: #888; color: var(--text); }
+    .nav-btn.accent-btn { transition: border-color .2s, color .2s; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-in { animation: fadeSlide .25s ease forwards; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .site-header { padding: 20px 18px 16px; }
+      .main { padding: 0 14px 60px; }
+      .guide-card { padding: 16px 14px; gap: 14px; }
+      .card-num { min-width: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════ -->
+<header class="site-header">
+  <div>
+    <div class="header-meta">FAU · UNT — Modelado Paramétrico</div>
+    <div class="header-title">xFigura AI + Rhinoceros / Grasshopper</div>
+    <div class="header-sub">INSTRUCTIVOS PARA ALUMNOS — 7 GUÍAS</div>
+  </div>
+  <button id="back-btn" onclick="showIndex()">← Volver al índice</button>
+</header>
+
+<div class="main">
+
+  <!-- ═══ INDEX ═══ -->
+  <div id="index-view">
+    <div class="intro-block">
+      <p>
+        Conjunto de instructivos para integrar
+        <strong class="accent">xFigura AI</strong> con flujos de trabajo en
+        <strong class="mid">Rhinoceros 3D y Grasshopper</strong>.
+        Seguí las guías en orden o accedé directamente a la que necesitás.
+      </p>
+    </div>
+    <div class="guide-list" id="guide-list">
+      <!-- cards se generan con JS -->
+    </div>
+    <div class="index-footer">
+      <span>NOTA TÉCNICA:</span>
+      Las guías 00–02 son compatibles con Rhino 6, 7 y 8.
+      La guía 03 requiere Rhino 8 o superior.
+      Las guías 04–06 aplican a cualquier versión con acceso a xfigura.ai.
+    </div>
+  </div>
+
+  <!-- ═══ DETAIL ═══ -->
+  <div id="detail-view">
+    <div id="detail-header" class="detail-header"></div>
+    <div id="detail-sections" class="sections"></div>
+    <div id="detail-nav" class="detail-nav"></div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const guides = [
+  {
+    id: "00",
+    tag: "INTRODUCCIÓN",
+    color: "#C8FF00",
+    icon: "◈",
+    title: "¿Qué es xFigura y por qué integrarlo con Grasshopper?",
+    intro: "xFigura AI es una plataforma generativa diseñada por y para arquitectos. Conectada con Grasshopper, se convierte en un motor de visualización e ideación que transforma tus definiciones paramétricas en renders, modelos 3D y variantes de diseño en segundos.",
+    sections: [
+      {
+        title: "El flujo de trabajo combinado",
+        content: "Grasshopper genera geometría paramétrica precisa y controlada. xFigura convierte esa geometría en visualizaciones fotorrealistas, exploración de estilos y modelos 3D enriquecidos. No reemplaza a Grasshopper: lo amplifica.",
+      },
+      {
+        title: "¿Qué puede hacer xFigura?",
+        items: [
+          "Sketch-to-Image: convertir capturas de viewport en renders realistas",
+          "Image-to-3D: generar modelos tridimensionales desde vistas 2D",
+          "Text-to-Image: generar referencias visuales por descripción textual",
+          "Style Transfer: aplicar estilos arquitectónicos a tus modelos",
+          "Upscaling: mejorar resolución de renders con IA",
+          "Colaboración en tiempo real en un canvas compartido",
+        ],
+      },
+      {
+        title: "Dos rutas de integración",
+        items: [
+          "Plugin nativo para Rhino 8 → integración directa sin salir del entorno de modelado",
+          "Flujo manual → captura de viewport + subida a xfigura.ai (compatible con Rhino 6/7/8)",
+        ],
+      },
+      {
+        title: "Nota sobre el plan",
+        content: "xFigura ofrece un plan gratuito con créditos limitados y planes pagos escalables. Para el curso, el plan gratuito es suficiente para experimentar los flujos básicos.",
+      },
+    ],
+  },
+  {
+    id: "01",
+    tag: "CONFIGURACIÓN",
+    color: "#00CFFF",
+    icon: "⬡",
+    title: "Crear cuenta y conocer la interfaz de xFigura",
+    intro: "Antes de conectar con Grasshopper, es necesario conocer el entorno de xFigura. Esta guía te lleva desde el registro hasta las herramientas principales.",
+    sections: [
+      {
+        title: "Registro paso a paso",
+        items: [
+          "Ir a xfigura.ai y hacer clic en 'Get Started' o 'Sign Up'",
+          "Registrarse con Google o con correo electrónico",
+          "Seleccionar el plan Free para comenzar",
+          "Confirmar el correo electrónico si se solicita",
+        ],
+      },
+      {
+        title: "Interfaz principal: el Designer",
+        content: "El espacio de trabajo central se llama Designer. Es un canvas infinito donde podés generar imágenes, modelos 3D y organizar tu proceso de ideación.",
+        items: [
+          "Panel izquierdo: herramientas de generación (Image, 3D, Video, Upscale)",
+          "Canvas central: espacio de trabajo con zoom y desplazamiento libre",
+          "Panel derecho: parámetros del modelo activo (prompt, estilo, resolución)",
+          "Barra superior: acceso a proyectos, créditos y configuración",
+        ],
+      },
+      {
+        title: "Modelos disponibles en el plan Free",
+        items: [
+          "FLUX Dev → generación de imágenes de calidad media-alta",
+          "SDXL → estable para renders arquitectónicos",
+          "Tripo (básico) → generación 3D desde imagen",
+        ],
+      },
+      {
+        title: "Créditos y límites",
+        content: "Cada generación consume créditos. El plan Free otorga una cantidad mensual. Recomendación: guardar las generaciones más importantes descargando las imágenes directamente desde el canvas.",
+      },
+    ],
+  },
+  {
+    id: "02",
+    tag: "FLUJO BÁSICO",
+    color: "#FF6B35",
+    icon: "▷",
+    title: "Grasshopper → Captura de Viewport → xFigura (Imagen-a-Render)",
+    intro: "El flujo más accesible: tomar una captura del viewport de Rhino con tu geometría paramétrica y convertirla en un render arquitectónico realista usando xFigura. Compatible con todas las versiones de Rhino.",
+    sections: [
+      {
+        title: "Paso 1: Preparar la geometría en Grasshopper",
+        items: [
+          "Crear o abrir tu definición de Grasshopper",
+          "Hacer Bake de la geometría (clic derecho en componente → Bake) o usar Preview activo",
+          "Posicionar la cámara de Rhino en perspectiva desde un ángulo relevante",
+          "Activar modo de visualización Shaded o Rendered en el viewport",
+          "Ajustar iluminación básica si es necesario (Sun + Skylight en Rhino)",
+        ],
+      },
+      {
+        title: "Paso 2: Capturar el viewport de Rhino",
+        items: [
+          "En Rhino: menú View → Capture → To File...",
+          "Resolución recomendada: mínimo 1920×1080 px",
+          "Guardar como PNG o JPG",
+          "Alternativa rápida: escribir ViewCaptureToFile en la línea de comandos de Rhino",
+          "Consejo: activar 'Capture with scale' para mayor resolución sin cambiar ventana",
+        ],
+      },
+      {
+        title: "Paso 3: Subir a xFigura y generar",
+        items: [
+          "Abrir xFigura Designer y seleccionar herramienta 'Image Generation'",
+          "Activar modo 'Image-to-Image' (ícono de imagen de referencia)",
+          "Arrastrar o subir la captura del viewport como imagen base",
+          "Ajustar el parámetro 'Influence' entre 0.5 y 0.7",
+          "Escribir el prompt: ej. 'architectural render, parametric pavilion, concrete and glass, natural light, photorealistic'",
+          "Seleccionar modelo FLUX Pro o SDXL para resultados arquitectónicos",
+          "Hacer clic en Generate y esperar el resultado",
+        ],
+      },
+      {
+        title: "Paso 4: Refinar el resultado",
+        items: [
+          "Usar 'Variations' para generar alternativas del mismo resultado",
+          "Aplicar Upscale para aumentar la resolución antes de descargar",
+          "Usar Inpainting para editar zonas específicas de la imagen generada",
+          "Descargar el resultado final desde el canvas",
+        ],
+      },
+      {
+        title: "Prompts recomendados para arquitectura",
+        items: [
+          "'parametric facade, computational design, aluminum panels, dramatic shadows, architectural photography'",
+          "'wooden pavilion, organic curves, natural daylight, landscape integration, photorealistic'",
+          "'modular housing, concrete grid, tropical vegetation, aerial perspective, photorealistic render'",
+          "Agregar siempre al final: 'high detail, architectural photography, professional render'",
+        ],
+      },
+    ],
+  },
+  {
+    id: "03",
+    tag: "PLUGIN RHINO 8",
+    color: "#B388FF",
+    icon: "⬢",
+    title: "Instalar y usar el Plugin de xFigura para Rhino 8",
+    intro: "xFigura ofrece un plugin nativo para Rhino 8 que permite conectar tu modelo directamente con la plataforma, sin necesidad de exportar ni cambiar de ventana. Esta es la integración más fluida y potente.",
+    sections: [
+      {
+        title: "Requisitos previos",
+        items: [
+          "Rhino 8 instalado (versión mínima: Rhino 8 SR5 o superior)",
+          "Cuenta activa en xFigura (cualquier plan)",
+          "Conexión a internet activa durante el uso",
+          "Sistema operativo: Windows 10/11 o macOS 12+",
+        ],
+      },
+      {
+        title: "Instalación del plugin",
+        items: [
+          "Abrir Rhino 8 y escribir 'PackageManager' en la línea de comandos",
+          "En el buscador escribir 'xFigura' y seleccionar el plugin",
+          "Hacer clic en Install y reiniciar Rhino 8",
+          "Alternativa: instalar desde food4rhino.com buscando xFigura",
+          "Tras el reinicio, aparece el panel de xFigura en la barra de herramientas o en Panels → xFigura",
+        ],
+      },
+      {
+        title: "Primer uso: conectar tu cuenta",
+        items: [
+          "Abrir el panel de xFigura en Rhino",
+          "Hacer clic en 'Sign In' e ingresar las credenciales de xfigura.ai",
+          "Una vez conectado, el panel mostrará tu saldo de créditos y las herramientas",
+          "Verificar la conexión: el indicador debe mostrar 'Connected'",
+        ],
+      },
+      {
+        title: "Generar desde el viewport directamente",
+        items: [
+          "Posicionar la vista del modelo que deseás procesar",
+          "En el panel de xFigura, seleccionar 'Capture Viewport'",
+          "El plugin captura automáticamente la vista activa",
+          "Escribir el prompt descriptivo en el campo de texto",
+          "Ajustar parámetros: modelo, influence, resolución",
+          "Hacer clic en Generate → el resultado aparece en el panel",
+        ],
+      },
+      {
+        title: "Ventajas del plugin vs. flujo manual",
+        items: [
+          "No es necesario exportar imágenes manualmente",
+          "Acceso a más de 40 modelos de IA directamente desde Rhino",
+          "Historial de generaciones vinculado al archivo de Rhino",
+          "Posibilidad de iterar rápidamente sin salir del entorno de modelado",
+        ],
+      },
+    ],
+  },
+  {
+    id: "04",
+    tag: "FLUJO AVANZADO",
+    color: "#00E5A0",
+    icon: "◎",
+    title: "Grasshopper + xFigura: de geometría paramétrica a modelo 3D con IA",
+    intro: "El flujo más avanzado: exportar geometría desde Grasshopper, generar renders en xFigura y luego usar Image-to-3D para recuperar un modelo tridimensional enriquecido. Ideal para exploración conceptual acelerada.",
+    sections: [
+      {
+        title: "Parte A: Exportar desde Grasshopper/Rhino",
+        items: [
+          "Bake de la geometría en Rhino (seleccionar el layer correspondiente)",
+          "Ir a File → Export Selected → guardar como OBJ o STL",
+          "Alternativa: exportar imagen de alta resolución del viewport (ver Guía 02)",
+          "Recomendación: exportar múltiples vistas (planta, perspectiva, alzado)",
+        ],
+      },
+      {
+        title: "Parte B: Generar render en xFigura",
+        items: [
+          "Subir la vista exportada a xFigura usando Image-to-Image",
+          "Probar 3 variaciones de prompt cambiando material o entorno",
+          "Seleccionar el resultado más relevante y aplicar Upscale",
+          "Guardar el render final en alta resolución",
+        ],
+      },
+      {
+        title: "Parte C: Generar modelo 3D con IA",
+        items: [
+          "Con la imagen del render seleccionada, usar herramienta '3D Generation'",
+          "Seleccionar modelo: Tripo v2.5 (más preciso para arquitectura) o Hunyuan3D 2.0",
+          "Activar 'Multi-view' si se tienen múltiples vistas del modelo",
+          "Hacer clic en Generate 3D y esperar 1–3 minutos",
+          "Visualizar el resultado en el visor 3D integrado de xFigura",
+          "Descargar en formato GLB u OBJ",
+        ],
+      },
+      {
+        title: "Parte D: Reimportar a Rhino (opcional)",
+        items: [
+          "En Rhino: File → Import → seleccionar el archivo GLB u OBJ descargado",
+          "Escalar y posicionar el modelo IA junto al original de Grasshopper",
+          "Usarlo como referencia visual o massing conceptual",
+          "IMPORTANTE: los modelos IA no son geométricamente precisos; usarlos como guía creativa, no como geometría de producción",
+        ],
+      },
+    ],
+  },
+  {
+    id: "05",
+    tag: "COLABORACIÓN",
+    color: "#FFD600",
+    icon: "⬟",
+    title: "Uso colaborativo de xFigura para talleres y críticas",
+    intro: "xFigura permite trabajar en un canvas compartido en tiempo real, ideal para talleres de diseño, críticas colectivas y ejercicios grupales durante las sesiones de Zoom.",
+    sections: [
+      {
+        title: "Crear un proyecto compartido",
+        items: [
+          "En xFigura ir a Projects → New Project",
+          "Asignar nombre descriptivo (ej: 'Taller 03 - Superficies Paramétricas')",
+          "Hacer clic en 'Invite' y compartir el link o ingresar los correos",
+          "Los invitados pueden unirse con cuenta Free",
+          "El canvas es visible y editable para todos en tiempo real",
+        ],
+      },
+      {
+        title: "Dinámicas de taller recomendadas",
+        items: [
+          "Cada alumno sube su captura de Grasshopper en una zona del canvas",
+          "Todos generan variantes del mismo prompt base para comparar resultados",
+          "El docente agrega comentarios directamente en el canvas compartido",
+          "Usar colores de marco para categorizar: bueno / a revisar / referencia",
+          "Archivar el canvas al final de la clase como registro visual del taller",
+        ],
+      },
+      {
+        title: "Para críticas de proyecto",
+        items: [
+          "El alumno prepara un board con: render IA, vistas de Grasshopper y prompt utilizado",
+          "Compartir el link del proyecto durante la crítica",
+          "El docente puede intervenir el canvas en vivo: agregar referencias o nuevas generaciones",
+          "Exportar el canvas como PDF o imagen para el portafolio",
+        ],
+      },
+      {
+        title: "Consejo para clases por Zoom",
+        content: "El docente comparte pantalla mostrando el canvas de xFigura mientras los alumnos trabajan en paralelo. Esta sincronía visual refuerza el seguimiento colectivo sin que todos necesiten el mismo modelo.",
+      },
+    ],
+  },
+  {
+    id: "06",
+    tag: "BUENAS PRÁCTICAS",
+    color: "#FF4081",
+    icon: "✦",
+    title: "Prompts efectivos, errores comunes y recomendaciones",
+    intro: "La calidad de los resultados depende en gran medida de cómo se construye el prompt y cómo se configura la referencia visual. Esta guía reúne las mejores prácticas para flujos de diseño paramétrico.",
+    sections: [
+      {
+        title: "Anatomía de un buen prompt arquitectónico",
+        items: [
+          "OBJETO — qué es: 'parametric canopy', 'modular housing block', 'folded concrete facade'",
+          "MATERIAL — de qué está hecho: 'weathered steel', 'white concrete', 'timber lattice'",
+          "ENTORNO — dónde está: 'urban plaza', 'desert landscape', 'forest clearing'",
+          "LUZ — tipo de iluminación: 'golden hour', 'overcast sky', 'dramatic side lighting'",
+          "CALIDAD — nivel de detalle: 'architectural photography', 'photorealistic', 'high detail'",
+          "Ejemplo: 'parametric canopy, folded aluminum panels, urban plaza, golden hour, architectural photography, high detail, photorealistic'",
+        ],
+      },
+      {
+        title: "Errores frecuentes y cómo evitarlos",
+        items: [
+          "Prompt vago ('render bonito de edificio') → resultado genérico. Ser específico siempre da mejores resultados",
+          "Influence >0.85 → xFigura ignora el prompt y replica la imagen de entrada. Usar entre 0.4 y 0.75",
+          "Influence <0.3 → la geometría original no se respeta. El resultado puede no parecerse al modelo",
+          "Viewport oscuro o sin iluminación → xFigura pierde información geométrica. Usar Shaded/Rendered con iluminación básica",
+          "Resolución de entrada <800px → los detalles se pierden. Mínimo 1080px de ancho",
+        ],
+      },
+      {
+        title: "Configuraciones según tipo de proyecto",
+        items: [
+          "Exploración conceptual rápida: FLUX Dev + Influence 0.5 + prompt corto",
+          "Presentación a cliente: FLUX Pro + Influence 0.65 + prompt detallado + Upscale final",
+          "Exploración de materialidad: SDXL + Influence 0.4 + prompt centrado en material",
+          "Generación de 3D conceptual: Tripo v2.5 + imagen con fondo neutro",
+        ],
+      },
+      {
+        title: "Flujo de trabajo completo sugerido para el curso",
+        items: [
+          "1. Definición Grasshopper → 2. Bake + vista de Rhino → 3. Captura viewport (1080p+)",
+          "4. Subir a xFigura → 5. Probar 3 prompts distintos → 6. Seleccionar el mejor resultado",
+          "7. Upscale + descarga → 8. (Opcional) Image-to-3D → 9. Presentar en canvas compartido",
+        ],
+      },
+    ],
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   RENDER INDEX
+═══════════════════════════════════════════════ */
+function renderIndex() {
+  const list = document.getElementById("guide-list");
+  list.innerHTML = guides.map((g, i) => `
+    <div class="guide-card anim-in"
+         style="animation-delay:${i * 0.04}s; --accent:${g.color};"
+         onclick="showGuide('${g.id}')">
+      <style>
+        .guide-card[onclick="showGuide('${g.id}')"]:hover::before { background: ${g.color}; }
+      </style>
+      <div class="card-num">${g.id}</div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag-pill" style="background:${g.color}18;color:${g.color};border:1px solid ${g.color}30;">${g.tag}</span>
+          <span style="color:${g.color};font-size:13px;">${g.icon}</span>
+        </div>
+        <div class="card-title">${g.title}</div>
+        <div class="card-preview">${g.intro.substring(0, 95)}...</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  `).join("");
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER DETAIL
+═══════════════════════════════════════════════ */
+function showGuide(id) {
+  const g = guides.find(x => x.id === id);
+  if (!g) return;
+
+  // header
+  document.getElementById("detail-header").innerHTML = `
+    <div style="border-bottom:1px solid ${g.color}20; padding-bottom:24px;">
+      <div class="detail-tags">
+        <span class="tag-pill" style="background:${g.color}18;color:${g.color};border:1px solid ${g.color}30;">GUÍA ${g.id}</span>
+        <span class="tag-pill" style="background:#1A1A1A;color:#555;border:1px solid #222;">${g.tag}</span>
+      </div>
+      <div class="detail-title">
+        <span style="color:${g.color}">${g.icon} </span>${g.title}
+      </div>
+      <p class="detail-intro" style="border-left:2px solid ${g.color};">${g.intro}</p>
+    </div>
+  `;
+
+  // sections
+  document.getElementById("detail-sections").innerHTML = g.sections.map((s, si) => `
+    <div class="section-block" id="sec-${si}">
+      <button class="section-toggle" onclick="toggleSection(${si}, '${g.color}')">
+        <div class="section-left">
+          <div class="section-num" style="background:${g.color}12;border:1px solid ${g.color}25;color:${g.color};">
+            ${String(si + 1).padStart(2, "0")}
+          </div>
+          <span class="section-label">${s.title}</span>
+        </div>
+        <span class="section-caret" style="color:${g.color};">+</span>
+      </button>
+      <div class="section-body">
+        ${s.content ? `<p class="section-content-text">${s.content}</p>` : ""}
+        ${s.items ? `
+          <div class="section-items">
+            ${s.items.map(item => `
+              <div class="item-line">
+                <span class="item-bullet" style="color:${g.color};">▸</span>
+                <span>${item}</span>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  // navigation
+  const idx = guides.findIndex(x => x.id === id);
+  const prev = idx > 0 ? guides[idx - 1] : null;
+  const next = idx < guides.length - 1 ? guides[idx + 1] : null;
+  document.getElementById("detail-nav").innerHTML = `
+    ${prev ? `<button class="nav-btn" onclick="showGuide('${prev.id}')">← Guía ${prev.id}</button>` : "<div></div>"}
+    ${next ? `<button class="nav-btn accent-btn" style="border-color:${g.color}40;color:${g.color};" onclick="showGuide('${next.id}')">Guía ${next.id} →</button>` : ""}
+  `;
+
+  // show/hide views
+  document.getElementById("index-view").style.display = "none";
+  const dv = document.getElementById("detail-view");
+  dv.style.display = "block";
+  dv.classList.add("anim-in");
+  document.getElementById("back-btn").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showIndex() {
+  document.getElementById("detail-view").style.display = "none";
+  document.getElementById("index-view").style.display = "block";
+  document.getElementById("back-btn").style.display = "none";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function toggleSection(si, color) {
+  const block = document.getElementById(`sec-${si}`);
+  const isOpen = block.classList.contains("is-open");
+  // close all
+  document.querySelectorAll(".section-block").forEach(b => {
+    b.classList.remove("is-open");
+    b.querySelector(".section-caret").textContent = "+";
+  });
+  // open clicked if was closed
+  if (!isOpen) {
+    block.classList.add("is-open");
+    block.querySelector(".section-caret").textContent = "−";
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+renderIndex();
+</script>
+</body>
+</html>
